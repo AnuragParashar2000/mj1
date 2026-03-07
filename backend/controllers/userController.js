@@ -14,10 +14,13 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new Error('Please add all fields');
     }
 
+    const normalizedEmail = email.toLowerCase().trim();
+
     // Check if user exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: normalizedEmail });
 
     if (userExists) {
+        console.log(`[Registration Conflict]: User with email ${normalizedEmail} already exists.`);
         res.status(400);
         throw new Error('User already exists');
     }
@@ -25,7 +28,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // Create user
     const user = await User.create({
         name,
-        email,
+        email: normalizedEmail,
         password,
         role: role || 'student',
     });
@@ -75,9 +78,10 @@ const registerUser = asyncHandler(async (req, res) => {
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+    const normalizedEmail = email.toLowerCase().trim();
 
     // Check for user email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
 
     if (user && (await user.matchPassword(password))) {
         res.json({
