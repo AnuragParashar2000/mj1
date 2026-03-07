@@ -53,7 +53,7 @@ const io = new Server(server, { cors: corsOptions });
 
 // Middleware - Apply CORS preflight handler for all routes
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.options(/(.*)/, cors(corsOptions));
 
 // Configure Socket.io Connection
 io.on('connection', (socket) => {
