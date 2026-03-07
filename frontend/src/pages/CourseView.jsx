@@ -8,6 +8,9 @@ const CourseView = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [activeTab, setActiveTab] = useState('curriculum');
+    const [course, setCourse] = useState(null);
+    const [enrollment, setEnrollment] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [discussions, setDiscussions] = useState([]);
     const [reviews, setReviews] = useState([]);
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
