@@ -46,6 +46,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log(`User Disconnected: ${socket.id}`);
     });
+
     // Middleware
     app.use(cors({
         origin: allowedOrigins,
@@ -53,6 +54,7 @@ io.on('connection', (socket) => {
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization']
     }));
+
     // Handle Stripe webhook as raw body BEFORE express.json() parses it globally
     app.use('/api/payments/webhook', express.raw({ type: 'application/json' }), require('./routes/paymentRoutes'));
 
@@ -60,6 +62,7 @@ io.on('connection', (socket) => {
     app.use(express.urlencoded({ extended: false }));
     app.use(helmet({
         crossOriginResourcePolicy: false,
+        Gal
     }));
 
     if (process.env.NODE_ENV === 'development') {
@@ -98,3 +101,4 @@ io.on('connection', (socket) => {
     server.listen(PORT, () => {
         console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
     });
+
