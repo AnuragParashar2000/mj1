@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, BookOpen, Clock, Lock, CheckCircle, Play, Award } from 'lucide-react';
 import api from '../api';
 
 const CourseView = () => {

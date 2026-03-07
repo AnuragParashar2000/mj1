@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Award, Shield, CheckCircle, Download, Printer, ArrowLeft } from 'lucide-react';
 import api from '../api';
 import { Award, Shield, CheckCircle, Download, Printer } from 'lucide-react';
 

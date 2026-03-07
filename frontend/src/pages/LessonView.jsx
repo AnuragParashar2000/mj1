@@ -1,4 +1,8 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, BookOpen, Code, CheckCircle, Youtube, ArrowRight, Award, Sparkles } from 'lucide-react';
 import api from '../api';
+import Compiler from './Compiler';
 
 const LessonView = () => {
     const { courseId, lessonIndex } = useParams();
