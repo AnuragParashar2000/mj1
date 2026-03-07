@@ -17,19 +17,43 @@ connectDB();
 // Configure CORS origins
 const allowedOrigins = [
     process.env.FRONTEND_URL,
+    "https://mj1-iota.vercel.app", // Explicitly adding just in case
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:3000"
-].filter(Boolean);
+].filter(Boolean).map(o => o.replace(/\/$/, ""));
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: allowedOrigins,
-        credentials: true
-    }
-});
+
+// Dynamic CORS Origin function
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+
+        // Normalize incoming origin
+        const normalizedOrigin = origin.replace(/\/$/, "");
+
+        if (allowedOrigins.includes(normalizedOrigin) ||
+            normalizedOrigin.endsWith("vercel.app") // Permissive for vercel subdomains during debug
+        ) {
+            callback(null, true);
+        } else {
+            console.log(`[CORS Blocked]: ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+const io = new Server(server, { cors: corsOptions });
+
+// Middleware - Apply CORS preflight handler for all routes
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Configure Socket.io Connection
 io.on('connection', (socket) => {
@@ -47,14 +71,6 @@ io.on('connection', (socket) => {
         console.log(`User Disconnected: ${socket.id}`);
     });
 });
-
-// Middleware
-app.use(cors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
 
 // Handle Stripe webhook as raw body BEFORE express.json() parses it globally
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }), require('./routes/paymentRoutes'));
