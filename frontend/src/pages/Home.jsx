@@ -118,21 +118,37 @@ const Home = () => {
                             <Sparkles size={14} /> EXPLORE THE FUTURE OF LEARNING
                         </div>
                         <h1 style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '1rem', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
-                            Master Your Future with <span className="text-primary">SkillSphereX</span>
+                            {user.role === 'admin' ? 'Strategic Overview' : 'Master Your Future'} with <span className="text-primary">SkillSphereX</span>
                         </h1>
                         <p style={{ fontSize: '1.25rem', color: 'var(--text-muted)', marginBottom: '2.5rem', lineHeight: 1.6 }}>
-                            Welcome back, <strong>{user.name.split(' ')[0]}</strong>! Continue your journey through our AI-powered learning tracks and earn professional recognition.
+                            {user.role === 'admin'
+                                ? `Welcome to the Command Center, ${user.name.split(' ')[0]}. Manage your learning ecosystem and monitor platform growth.`
+                                : `Welcome back, ${user.name.split(' ')[0]}! Continue your journey through our AI-powered learning tracks and earn professional recognition.`
+                            }
                         </p>
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button className="btn" style={{ width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem' }} onClick={() => navigate('/courses')}>
-                                <PlayCircle size={20} /> Continue Learning
-                            </button>
-                            <button className="btn btn-secondary" style={{ width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem' }} onClick={() => navigate('/mentor')}>
-                                <Brain size={20} /> AI Skill Mentor
-                            </button>
-                            <button className="btn btn-secondary" style={{ width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem', background: 'rgba(16, 185, 129, 0.05)', color: 'var(--secondary)', border: '1px solid rgba(16, 185, 129, 0.1)' }} onClick={() => navigate('/compiler')}>
-                                <Code size={20} /> SkillSphereX IDE
-                            </button>
+                            {user.role === 'admin' ? (
+                                <>
+                                    <button className="btn" style={{ width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem' }} onClick={() => navigate('/admin/courses')}>
+                                        <Layout size={20} /> Manage Catalog
+                                    </button>
+                                    <button className="btn btn-secondary" style={{ width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem' }} onClick={() => navigate('/admin/users')}>
+                                        <Users size={20} /> User Operations
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button className="btn" style={{ width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem' }} onClick={() => navigate('/courses')}>
+                                        <PlayCircle size={20} /> Continue Learning
+                                    </button>
+                                    <button className="btn btn-secondary" style={{ width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem' }} onClick={() => navigate('/mentor')}>
+                                        <Brain size={20} /> AI Skill Mentor
+                                    </button>
+                                    <button className="btn btn-secondary" style={{ width: 'auto', padding: '1rem 2rem', fontSize: '1.1rem', background: 'rgba(16, 185, 129, 0.05)', color: 'var(--secondary)', border: '1px solid rgba(16, 185, 129, 0.1)' }} onClick={() => navigate('/compiler')}>
+                                        <Code size={20} /> SkillSphereX IDE
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -141,28 +157,66 @@ const Home = () => {
                             <Zap size={18} className="text-primary" />
                             <span style={{ fontWeight: 800, fontSize: '1.1rem' }}>SkillSphereX</span>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                            <div>
-                                <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--primary)' }}>{enrollments.length}</div>
-                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Courses</div>
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--secondary)' }}>{user.points || 0}</div>
-                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total XP</div>
-                            </div>
-                            <div style={{ gridColumn: 'span 2', marginTop: '1rem' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                                    <span>Overall Mastery</span>
-                                    <span className="text-primary">{averageProgress}%</span>
+
+                        {user.role === 'admin' ? (
+                            <div style={{ padding: '1rem 0' }}>
+                                <div style={{
+                                    width: '80px',
+                                    height: '80px',
+                                    borderRadius: '50%',
+                                    background: 'rgba(99, 102, 241, 0.1)',
+                                    border: '2px solid var(--primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 1.5rem',
+                                    color: 'var(--primary)',
+                                    fontSize: '1.5rem',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {user.name.charAt(0)}
                                 </div>
-                                <div style={{ width: '100%', height: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
-                                    <div style={{ width: `${averageProgress}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%)' }}></div>
+                                <h3 style={{ marginBottom: '0.25rem' }}>{user.name}</h3>
+                                <div style={{
+                                    fontSize: '0.75rem',
+                                    color: 'var(--primary)',
+                                    textTransform: 'uppercase',
+                                    fontWeight: 800,
+                                    letterSpacing: '1px',
+                                    background: 'rgba(99, 102, 241, 0.1)',
+                                    display: 'inline-block',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    marginBottom: '2rem'
+                                }}>
+                                    Administrator
                                 </div>
                             </div>
-                        </div>
-                        <button onClick={() => navigate('/leaderboard')} className="btn" style={{ marginTop: '1.5rem', width: '100%', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-                            <Trophy size={16} /> Global Leaderboard
-                        </button>
+                        ) : (
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                                <div>
+                                    <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--primary)' }}>{enrollments.length}</div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Courses</div>
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--secondary)' }}>{user.points || 0}</div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total XP</div>
+                                </div>
+                                <div style={{ gridColumn: 'span 2', marginTop: '1rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                                        <span>Overall Mastery</span>
+                                        <span className="text-primary">{averageProgress}%</span>
+                                    </div>
+                                    <div style={{ width: '100%', height: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${averageProgress}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%)' }}></div>
+                                    </div>
+                                </div>
+                                <button onClick={() => navigate('/leaderboard')} className="btn" style={{ gridColumn: 'span 2', marginTop: '0.5rem', width: '100%', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                                    <Trophy size={16} /> Global Leaderboard
+                                </button>
+                            </div>
+                        )}
+
                         <button onClick={handleLogout} className="btn btn-secondary" style={{ marginTop: '0.75rem', width: '100%', background: 'rgba(239, 68, 68, 0.05)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
                             <LogOut size={16} /> Secure Sign Out
                         </button>
