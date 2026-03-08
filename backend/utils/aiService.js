@@ -1,11 +1,18 @@
-const { OpenAI } = require('openai');
+const OpenAI = require('openai');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+let openai;
+try {
+    if (process.env.OPENAI_API_KEY) {
+        openai = new OpenAI({
+            apiKey: process.env.OPENAI_API_KEY,
+        });
+    }
+} catch (initError) {
+    console.error('OpenAI Initialization Error:', initError.message);
+};
 
 /**
  * Helper to clean JSON string from AI response (removes ```json ... ```)
@@ -35,6 +42,10 @@ const generateQuizFromContent = async (content) => {
     `;
 
     try {
+        if (!openai) {
+            throw new Error('OpenAI client not initialized. Check your API key.');
+        }
+
         const response = await openai.chat.completions.create({
             model: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
@@ -69,8 +80,12 @@ const summarizeContent = async (content) => {
     `;
 
     try {
+        if (!openai) {
+            throw new Error('OpenAI client not initialized. Check your API key.');
+        }
+
         const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
+            model: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
             temperature: 0.5,
         });
