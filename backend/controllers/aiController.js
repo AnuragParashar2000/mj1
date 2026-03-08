@@ -228,8 +228,26 @@ const generateQuiz = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Content is required');
   }
-  const questions = await generateQuizFromContent(content);
-  res.json(questions);
+
+  // Fallback if no API key is configured
+  if (!process.env.OPENAI_API_KEY) {
+    console.log('[AI Fallback]: No API key for Quiz Generation');
+    return res.json([
+      {
+        question: "Demo Question: What is the main topic of this lesson?",
+        options: ["Topic A", "Topic B", "Topic C", "Topic D"],
+        correctAnswer: "Topic A"
+      }
+    ]);
+  }
+
+  try {
+    const questions = await generateQuizFromContent(content);
+    res.json(questions);
+  } catch (error) {
+    console.error('Quiz Gen Controller error:', error.message);
+    res.status(500).json({ message: 'AI failed to generate quiz', error: error.message });
+  }
 });
 
 // @desc    Summarize lesson content
@@ -241,8 +259,20 @@ const summarizeLesson = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Content is required');
   }
-  const summary = await summarizeContent(content);
-  res.json({ summary });
+
+  // Fallback if no API key is configured
+  if (!process.env.OPENAI_API_KEY) {
+    console.log('[AI Fallback]: No API key for Summarization');
+    return res.json({ summary: "Demo Summary: This is a placeholder summary because the AI service is not configured." });
+  }
+
+  try {
+    const summary = await summarizeContent(content);
+    res.json({ summary });
+  } catch (error) {
+    console.error('Summarizer Controller error:', error.message);
+    res.status(500).json({ message: 'AI failed to summarize', error: error.message });
+  }
 });
 
 module.exports = {

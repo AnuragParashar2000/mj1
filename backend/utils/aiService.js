@@ -8,6 +8,13 @@ const openai = new OpenAI({
 });
 
 /**
+ * Helper to clean JSON string from AI response (removes ```json ... ```)
+ */
+const cleanJSONResponse = (text) => {
+    return text.replace(/```json/g, '').replace(/```/g, '').trim();
+};
+
+/**
  * Generate 5 multiple-choice questions based on lesson content.
  */
 const generateQuizFromContent = async (content) => {
@@ -29,16 +36,23 @@ const generateQuizFromContent = async (content) => {
 
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
+            model: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
             temperature: 0.7,
         });
 
-        const resultText = response.choices[0].message.content;
-        return JSON.parse(resultText);
+        let resultText = response.choices[0].message.content;
+        resultText = cleanJSONResponse(resultText);
+
+        try {
+            return JSON.parse(resultText);
+        } catch (parseError) {
+            console.error('JSON Parse Error in AI Quiz Gen:', resultText);
+            throw new Error('AI returned invalid JSON format');
+        }
     } catch (error) {
-        console.error('AI Quiz Generation Error:', error);
-        throw new Error('Failed to generate quiz');
+        console.error('AI Quiz Generation Error Details:', error.message);
+        throw error;
     }
 };
 
