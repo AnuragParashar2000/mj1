@@ -126,7 +126,7 @@ ${JSON.stringify(learningSnapshot, null, 2)}
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
-        model: process.env.OPENAI_MODEL || 'gpt-4.1-mini',
+        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
