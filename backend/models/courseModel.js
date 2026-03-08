@@ -51,6 +51,13 @@ const courseSchema = mongoose.Schema(
                 starterCode: String
             },
         ],
+        resources: [
+            {
+                title: String,
+                url: String,
+                fileType: String
+            },
+        ],
     },
     {
         timestamps: true,

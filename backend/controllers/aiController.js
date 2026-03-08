@@ -1,4 +1,5 @@
 const asyncHandler = require('express-async-handler');
+const { generateQuizFromContent, summarizeContent } = require('../utils/aiService');
 const axios = require('axios');
 const Course = require('../models/courseModel');
 const Enrollment = require('../models/enrollmentModel');
@@ -218,7 +219,35 @@ ${JSON.stringify(learningSnapshot, null, 2)}
   }
 });
 
+// @desc    Generate quiz questions from lesson content
+// @route   POST /api/ai/generate-quiz
+// @access  Private/Admin
+const generateQuiz = asyncHandler(async (req, res) => {
+  const { content } = req.body;
+  if (!content) {
+    res.status(400);
+    throw new Error('Content is required');
+  }
+  const questions = await generateQuizFromContent(content);
+  res.json(questions);
+});
+
+// @desc    Summarize lesson content
+// @route   POST /api/ai/summarize
+// @access  Private
+const summarizeLesson = asyncHandler(async (req, res) => {
+  const { content } = req.body;
+  if (!content) {
+    res.status(400);
+    throw new Error('Content is required');
+  }
+  const summary = await summarizeContent(content);
+  res.json({ summary });
+});
+
 module.exports = {
   getLearningPath,
+  generateQuiz,
+  summarizeLesson,
 };
 

@@ -7,6 +7,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
+const startReminderJob = require('./utils/reminderJob');
 
 // Load environment variables
 dotenv.config();
@@ -116,4 +117,6 @@ const PORT = process.env.PORT || 5001;
 
 server.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    // Start background jobs
+    startReminderJob();
 });

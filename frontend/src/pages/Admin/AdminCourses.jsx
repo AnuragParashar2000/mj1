@@ -12,6 +12,8 @@ const AdminCourses = () => {
         duration: '',
         coverImage: '',
         category: '',
+        lessons: [],
+        resources: [],
     });
     const [editingId, setEditingId] = useState(null);
     const [message, setMessage] = useState('');
@@ -40,6 +42,68 @@ const AdminCourses = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const addLesson = () => {
+        setFormData({
+            ...formData,
+            lessons: [...formData.lessons, { title: '', content: '', videoUrl: '' }]
+        });
+    };
+
+    const removeLesson = (index) => {
+        const newLessons = [...formData.lessons];
+        newLessons.splice(index, 1);
+        setFormData({ ...formData, lessons: newLessons });
+    };
+
+    const handleLessonChange = (index, e) => {
+        const newLessons = [...formData.lessons];
+        newLessons[index][e.target.name] = e.target.value;
+        setFormData({ ...formData, lessons: newLessons });
+    };
+
+    const addResource = () => {
+        setFormData({
+            ...formData,
+            resources: [...formData.resources, { title: '', url: '', fileType: 'PDF' }]
+        });
+    };
+
+    const removeResource = (index) => {
+        const newResources = [...formData.resources];
+        newResources.splice(index, 1);
+        setFormData({ ...formData, resources: newResources });
+    };
+
+    const handleResourceChange = (index, e) => {
+        const newResources = [...formData.resources];
+        newResources[index][e.target.name] = e.target.value;
+        setFormData({ ...formData, resources: newResources });
+    };
+
+    const generateAIQuiz = async (lessonIndex) => {
+        const lesson = formData.lessons[lessonIndex];
+        if (!lesson.content) {
+            alert('Please add lesson content first so the AI can generate a quiz!');
+            return;
+        }
+
+        try {
+            setMessage('Generating AI Quiz... please wait.');
+            const user = JSON.parse(localStorage.getItem('user'));
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            const { data } = await api.post('/api/ai/generate-quiz', { content: lesson.content }, config);
+
+            // Here we would typically save the quiz. For now, let's log it or alert.
+            // In a full implementation, we'd create a prompt to "Add to course quizzes".
+            console.log('Generated Quiz Questions:', data);
+            alert('AI Quiz Generated successfully! Check console for details (Saving logic to be wired).');
+            setMessage('AI Quiz Generated!');
+            setTimeout(() => setMessage(''), 3000);
+        } catch (error) {
+            setMessage('Error generating AI quiz');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const user = JSON.parse(localStorage.getItem('user'));
@@ -64,6 +128,8 @@ const AdminCourses = () => {
                 duration: '',
                 coverImage: '',
                 category: '',
+                lessons: [],
+                resources: [],
             });
             setEditingId(null);
             fetchCourses();
@@ -102,6 +168,8 @@ const AdminCourses = () => {
             duration: course.duration,
             coverImage: course.coverImage,
             category: course.category,
+            lessons: course.lessons || [],
+            resources: course.resources || [],
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -182,6 +250,70 @@ const AdminCourses = () => {
                             <label style={{ color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'block' }}>Thumbnail Image URL</label>
                             <input type="text" name="coverImage" value={formData.coverImage} onChange={handleChange} placeholder="https://unsplash.com/..." className="input" style={{ width: '100%' }} />
                         </div>
+                    </div>
+
+                    {/* Lessons Section */}
+                    <div className="lessons-management" style={{ marginBottom: '2.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <h4 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--primary)' }}>Course Curriculum (Lessons)</h4>
+                            <button type="button" onClick={addLesson} className="btn btn-secondary" style={{ width: 'auto', padding: '0.5rem 1rem', fontSize: '0.8rem' }}>
+                                <Plus size={14} /> Add Lesson
+                            </button>
+                        </div>
+
+                        {formData.lessons.map((lesson, idx) => (
+                            <div key={idx} className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1rem', background: 'rgba(255,255,255,0.02)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                    <h5 style={{ margin: 0 }}>Lesson #{idx + 1}</h5>
+                                    <button type="button" onClick={() => removeLesson(idx)} style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer' }}>
+                                        <Trash size={16} />
+                                    </button>
+                                </div>
+                                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                    <input type="text" placeholder="Lesson Title" name="title" value={lesson.title} onChange={(e) => handleLessonChange(idx, e)} className="input" style={{ width: '100%' }} />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                    <textarea placeholder="Lesson Content (for AI Quiz generation)" name="content" value={lesson.content} onChange={(e) => handleLessonChange(idx, e)} className="input" style={{ width: '100%', height: '100px' }} />
+                                </div>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                    <input type="text" placeholder="Video URL" name="videoUrl" value={lesson.videoUrl} onChange={(e) => handleLessonChange(idx, e)} className="input" style={{ flex: 1 }} />
+                                    <button
+                                        type="button"
+                                        onClick={() => generateAIQuiz(idx)}
+                                        className="btn"
+                                        style={{ width: 'auto', background: 'var(--secondary)', padding: '0.6rem 1rem', fontSize: '0.8rem', gap: '8px' }}
+                                    >
+                                        <RefreshCw size={14} /> AI Quiz Gen
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Resources Section */}
+                    <div className="resources-management" style={{ marginBottom: '2.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <h4 style={{ margin: 0, fontSize: '1.2rem', color: '#10b981' }}>Downloadable Resources</h4>
+                            <button type="button" onClick={addResource} className="btn btn-secondary" style={{ width: 'auto', padding: '0.5rem 1rem', fontSize: '0.8rem' }}>
+                                <Plus size={14} /> Add Resource
+                            </button>
+                        </div>
+
+                        {formData.resources.map((res, idx) => (
+                            <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 120px 40px', gap: '0.75rem', marginBottom: '0.75rem', alignItems: 'center' }}>
+                                <input type="text" placeholder="Title (e.g. Cheat Sheet)" name="title" value={res.title} onChange={(e) => handleResourceChange(idx, e)} className="input" />
+                                <input type="text" placeholder="Download URL" name="url" value={res.url} onChange={(e) => handleResourceChange(idx, e)} className="input" />
+                                <select name="fileType" value={res.fileType} onChange={(e) => handleResourceChange(idx, e)} className="input" style={{ height: '3.2rem', padding: '0 1rem' }}>
+                                    <option value="PDF">PDF</option>
+                                    <option value="ZIP">ZIP</option>
+                                    <option value="Code">Code</option>
+                                    <option value="Video">Video</option>
+                                </select>
+                                <button type="button" onClick={() => removeResource(idx)} style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer' }}>
+                                    <Trash size={18} />
+                                </button>
+                            </div>
+                        ))}
                     </div>
 
                     <div style={{ display: 'flex', gap: '1rem' }}>

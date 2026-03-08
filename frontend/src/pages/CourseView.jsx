@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Clock, Lock, CheckCircle, Play, Award } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, Lock, CheckCircle, Play, Award, FileText, Download } from 'lucide-react';
 import api from '../api';
 
 const CourseView = () => {
@@ -118,7 +118,7 @@ const CourseView = () => {
 
                     {/* Tabs Navigation */}
                     <div style={{ display: 'flex', gap: '2rem', borderBottom: '1px solid var(--glass-border)', marginBottom: '2.5rem' }}>
-                        {['curriculum', 'discussions', 'reviews'].map(tab => (
+                        {['curriculum', 'discussions', 'reviews', 'resources'].map(tab => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
@@ -280,6 +280,38 @@ const CourseView = () => {
                                     </div>
                                 ))}
                             </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'resources' && (
+                        <div className="glass-panel" style={{ padding: '2rem' }}>
+                            <h2 style={{ marginBottom: '2rem' }}>Learning Resources</h2>
+                            {!enrollment ? (
+                                <p style={{ color: 'var(--text-muted)' }}>Enroll in this course to access downloadable resources.</p>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    {course.resources?.length > 0 ? (
+                                        course.resources.map((res, idx) => (
+                                            <div key={idx} className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 2rem', background: 'rgba(255,255,255,0.02)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                    <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+                                                        <FileText size={20} />
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ fontWeight: 700 }}>{res.title}</div>
+                                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{res.fileType} File</div>
+                                                    </div>
+                                                </div>
+                                                <a href={res.url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ width: 'auto', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <Download size={16} /> Download
+                                                </a>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No additional resources available for this course yet.</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

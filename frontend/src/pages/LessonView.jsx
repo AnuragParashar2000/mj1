@@ -87,33 +87,14 @@ const LessonView = () => {
                 headers: { Authorization: `Bearer ${user.token}` }
             };
 
-            // Reusing the AI mentor logic but asking for a lesson summary
-            const prompt = `Please summarize this lesson and provide 3 key takeaways: 
-            Title: ${course.lessons[index].title}
-            Content: ${course.lessons[index].content}`;
+            const { data } = await api.post('/api/ai/summarize', {
+                content: lesson.content
+            }, config);
 
-            // We'll use a simplified version of the AI endpoint or a new one if needed.
-            // For now, let's assume we can use the learning-path endpoint carefully or a mock.
-            // Actually, let's just simulate it for now to avoid breaking the existing API 
-            // OR I can quickly check if I should add a summary route.
-            // Let's just simulate a "WOW" AI response for the demo if the API isn't ready.
-
-            setTimeout(() => {
-                setAiSummary(`### Lesson Insights
-                
-This lesson focuses on **${course.lessons[index].title}**. 
-
-**Key Takeaways:**
-1. Deep understanding of core structural patterns.
-2. Practical application of modern industry standards.
-3. Optimization strategies for better performance and scalability.
-
-**Possible Quiz Question:**
-"What is the primary benefit of the pattern discussed in this lesson?"
-`);
-                setAiLoading(false);
-            }, 1500);
+            setAiSummary(data.summary);
+            setAiLoading(false);
         } catch (error) {
+            console.error('AI Summary Error:', error);
             setAiLoading(false);
         }
     };
